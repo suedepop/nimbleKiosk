@@ -161,6 +161,20 @@ The Pi keeps playing from local cache if the network drops, and re-syncs when it
 **Total: ~14–21 weeks full-time (≈3.5–5 months), or roughly double part-time.**
 After Phase 3 you have a demoable product; after Phase 4 you can take money.
 
+### Phase 7 — Virtual Artist add-on (future, post-launch)
+
+> Out of scope for v1; sequence after the core product is selling. A paid, metered add-on.
+
+An AI image-creation assistant that turns a customer's plain-language intent into signage-ready images, with a guided flow and a post-draft tweak loop. It bolts onto the existing pipeline — generated images become `MediaAsset`s and flow through the library → playlist → display path unchanged, so the add-on is purely a new content-creation front-end, not a change to the core.
+
+- **Separate imagery from text.** AI generates the background/visual; text and logo are composited as real, editable layers — crisp, on-brand, and editable without regenerating. This is what makes signage legible and the tweak loop easy.
+- **Guided flow (LLM orchestrator).** A chat model asks purpose / message / vibe / brand / orientation, then assembles a strong image prompt plus suggested copy and layout, and produces 3–4 first-draft options.
+- **Tweak loop.** Regenerate variations, conversational refinement ("warmer," "less busy"), region edits (gpt-image-2 editing mode), and direct editing of the text/logo layer. Output sized exactly to 1920×1080 (or 1080×1920).
+- **Azure-native stack.** gpt-image-2 in Foundry for generation + editing (FLUX as an alternative); an orchestrator LLM (gpt-4o / gpt-5 series) for the guided conversation; Azure AI Content Safety for moderation. (DALL·E 3 is retired — use the gpt-image series.)
+- **Monetization (metered).** Generation has real per-image API cost, so it's a paid add-on: credit packs or an add-on subscription with an included allowance + overage, via Stripe usage-based billing. Charge only on accepted images; cap generations and rate-limit to control cost.
+- **Moderation & IP.** Public-screen content demands prompt/output filtering (Azure AI Content Safety) plus a usage policy discouraging trademark/celebrity/copyrighted prompts.
+- **MVP scope.** Guided prompt → pick from options → optional text overlay → save to library. The full canvas editor (layers, masking) is a later increment.
+
 ---
 
 ## 6. Monthly cost estimate (Azure, scale-as-you-grow)
@@ -239,6 +253,9 @@ When a user adds/removes a display, update the subscription item quantity; show 
 
 ### Build notes
 The **webhook handler** and **access gating** are the load-bearing pieces — everything else is UI that Stripe largely hosts. Use **Stripe test clocks** to simulate trial-end, renewal, and failed-payment flows without waiting real days. Add **Stripe Tax** if selling across states/countries; lean on **Smart Retries** for dunning.
+
+### Future add-ons
+Paid add-ons like the **Virtual Artist** (§5, Phase 7) are billed separately as **metered/usage-based** items — credit packs or an allowance-plus-overage add-on subscription — because they carry real per-use API cost. Stripe usage-based pricing or a credit balance handles this alongside the per-display subscription.
 
 ---
 
